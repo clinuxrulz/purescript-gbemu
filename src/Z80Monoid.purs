@@ -29,14 +29,27 @@ data Reg16
 newtype Z80Monoid =
   Z80Monoid
     (forall f. (Monoid f) =>
-         { nop :: f                              -- nop
-         , ldReg16Imm16 :: Reg16 -> I16 -> f     -- ld bc,**
-         , ldMemReg16Reg8 :: Reg16 -> Reg8 -> f  -- ld (bc),a
-         , incReg16 :: Reg16 -> f                -- inc bc
-         , incReg8 :: Reg8 -> f                  -- inc b
-         , decReg8 :: Reg8 -> f                  -- dec b
-         , ldReg8Imm8 :: Reg8 -> I8 -> f         -- ld b,*
-         , rlca :: f                             -- rlca
+                                                 -- 0x
+
+         { nop :: f                              -- NOP
+         , ldReg16Imm16 :: Reg16 -> I16 -> f     -- LD BC,d16
+         , ldMemReg16Reg8 :: Reg16 -> Reg8 -> f  -- LD (BC),A
+         , incReg16 :: Reg16 -> f                -- INC BC
+
+         , incReg8 :: Reg8 -> f                  -- INC B
+         , decReg8 :: Reg8 -> f                  -- DEC B
+         , ldReg8Imm8 :: Reg8 -> I8 -> f         -- LD B,d8
+         , rlca :: f                             -- RLCA
+
+         , ldMemReg8Reg16 :: Reg8 -> Reg16 -> f  -- LD (a16),SP
+         , add16 :: Reg16 -> Reg16 -> f          -- ADD HL,BC
+         , ldReg8MemReg16 :: Reg8 -> Reg16 -> f  -- LD A,(BC)
+         , decReg16 :: Reg16 -> f                -- DEC BC
+
+         -- covered already                      -- INC C
+         -- covered already                      -- DEC C
+         -- covered already                      -- LD C,d8
+         , rrca :: Reg16 -> f                    -- RRCA
          }
       -> f
     )
