@@ -26,8 +26,8 @@ data Reg16
 
 -- http://clrhome.org/table/
 -- left to right, top to bottom
-newtype OpsMonoid =
-  OpsMonoid
+newtype Z80Monoid =
+  Z80Monoid
     (forall f. (Monoid f) =>
          {
            nop :: f,                             -- nop
@@ -42,8 +42,8 @@ newtype OpsMonoid =
       -> f
     )
 
-instance semigroupOpsMonoid :: Semigroup OpsMonoid where
-  append (OpsMonoid f1) (OpsMonoid f2) = OpsMonoid (\impl -> append (f1 impl) (f2 impl))
+instance semigroupZ80Monoid :: Semigroup Z80Monoid where
+  append (Z80Monoid f1) (Z80Monoid f2) = Z80Monoid (\impl -> append (f1 impl) (f2 impl))
 
-instance monoidOpsMonoid :: Monoid OpsMonoid where
-  mempty = OpsMonoid (\_ -> mempty)
+instance monoidZ80Monoid :: Monoid Z80Monoid where
+  mempty = Z80Monoid (\_ -> mempty)
