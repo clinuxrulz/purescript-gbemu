@@ -24,6 +24,7 @@ data Reg16
   | HL
 
 -- http://clrhome.org/table/
+-- left to right, top to bottom
 newtype OpsMonoid =
   OpsMonoid
     (forall f. (Monoid f) =>
@@ -32,7 +33,10 @@ newtype OpsMonoid =
            ldReg16Imm16 :: Reg16 -> I16 -> f,    -- ld bc,**
            ldMemReg16Reg8 :: Reg16 -> Reg8 -> f, -- ld (bc),a
            incReg16 :: Reg16 -> f,               -- inc bc
-           incReg8 :: Reg8 -> f                  -- inc b
+           incReg8 :: Reg8 -> f,                 -- inc b
+           decReg8 :: Reg8 -> f,                 -- dec b
+           ldReg8Imm8 :: Reg8 -> I8 -> f,        -- ld b,*
+           rlca :: f                             -- rlca
          }
       -> f
     )
