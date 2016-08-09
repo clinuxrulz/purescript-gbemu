@@ -24,20 +24,19 @@ data Reg16
   | DE
   | HL
 
--- http://clrhome.org/table/
+-- http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
 -- left to right, top to bottom
 newtype Z80Monoid =
   Z80Monoid
     (forall f. (Monoid f) =>
-         {
-           nop :: f,                             -- nop
-           ldReg16Imm16 :: Reg16 -> I16 -> f,    -- ld bc,**
-           ldMemReg16Reg8 :: Reg16 -> Reg8 -> f, -- ld (bc),a
-           incReg16 :: Reg16 -> f,               -- inc bc
-           incReg8 :: Reg8 -> f,                 -- inc b
-           decReg8 :: Reg8 -> f,                 -- dec b
-           ldReg8Imm8 :: Reg8 -> I8 -> f,        -- ld b,*
-           rlca :: f                             -- rlca
+         { nop :: f                              -- nop
+         , ldReg16Imm16 :: Reg16 -> I16 -> f     -- ld bc,**
+         , ldMemReg16Reg8 :: Reg16 -> Reg8 -> f  -- ld (bc),a
+         , incReg16 :: Reg16 -> f                -- inc bc
+         , incReg8 :: Reg8 -> f                  -- inc b
+         , decReg8 :: Reg8 -> f                  -- dec b
+         , ldReg8Imm8 :: Reg8 -> I8 -> f         -- ld b,*
+         , rlca :: f                             -- rlca
          }
       -> f
     )
