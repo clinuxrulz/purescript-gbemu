@@ -1,4 +1,4 @@
-module OpsMonoid where
+module Z80Monoid where
 
 import Data.Semigroup (class Semigroup, append)
 import Data.Monoid (class Monoid, mempty)
@@ -19,6 +19,7 @@ data Reg8
 data Reg16
   = PC
   | SP
+  | AF
   | BC
   | DE
   | HL
