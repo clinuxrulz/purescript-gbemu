@@ -31,6 +31,16 @@ data Z80MonoidResult f
   | Z80Single f
   | Z80Append (Unit -> Z80MonoidResult f) f
 
+data Flag
+  = FZ -- Zero Flag
+  | FN -- Subtract Flag
+  | FH -- Half Carry Flag
+  | FC -- Curry Flag
+
+data Condition
+  = Flag Flag
+  | NotFlag Flag
+
 -- http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
 -- left to right, top to bottom
 newtype Z80MonoidImpl f =
@@ -57,7 +67,7 @@ newtype Z80MonoidImpl f =
     -- covered already                      -- LD C,d8
     , rrca :: Reg16 -> f                    -- RRCA
 
-      -- 1x
+                                            -- 1x
 
     , stop :: f                             -- STOP
     -- covered already                      -- LD DE,d16
@@ -78,6 +88,28 @@ newtype Z80MonoidImpl f =
     -- covered already                      -- DEC E
     -- covered already                      -- LD E,d8
     , rra :: f                              -- RRA
+
+                                            -- 2x
+
+    , jrCondImm8 :: Condition -> I8 -> f    -- JR NZ,r8
+    -- covered alreay                       -- LD HL,d16
+    , ldiMemReg16Reg8 :: Reg16 -> Reg8 -> f -- LD (HL+),A
+    -- covered already                      -- INC HL
+
+    -- covered already                      -- INC H
+    -- covered already                      -- DEC H
+    -- covered already                      -- LD H,d8
+    , daa :: f                              -- DAA
+
+    -- covered already                      -- JR Z,r8
+    -- covered already                      -- ADD HL,HL
+    , ldiReg8MemReg16 :: Reg8 -> Reg16 -> f -- LD A,(HL+)
+    -- covered already                      -- DEC HL
+
+    -- covered already                      -- INC L
+    -- covered already                      -- DEC L
+    -- covered already                      -- LD L,d8
+    , cpl :: f                              -- CPL
     }
 
 newtype Z80Monoid = Z80Monoid (forall f. Z80MonoidImpl f -> Z80MonoidResult f)
@@ -141,3 +173,18 @@ jrImm8 imm8 = Z80Monoid (\(Z80MonoidImpl { jrImm8: x }) -> Z80Single $ x imm8)
 
 rra :: Z80Monoid
 rra = Z80Monoid (\(Z80MonoidImpl { rra: x }) -> Z80Single $ x)
+
+jrCondImm8 :: Condition -> I8 -> Z80Monoid
+jrCondImm8 cond imm8 = Z80Monoid (\(Z80MonoidImpl { jrCondImm8: x }) -> Z80Single $ x cond imm8)
+
+ldiMemReg16Reg8 :: Reg16 -> Reg8 -> Z80Monoid
+ldiMemReg16Reg8 reg16 reg8 = Z80Monoid (\(Z80MonoidImpl { ldiMemReg16Reg8: x }) -> Z80Single $ x reg16 reg8)
+
+daa :: Z80Monoid
+daa = Z80Monoid (\(Z80MonoidImpl { daa: x }) -> Z80Single $ x)
+
+ldiReg8MemReg16 :: Reg8 -> Reg16 -> Z80Monoid
+ldiReg8MemReg16 reg8 reg16 = Z80Monoid (\(Z80MonoidImpl { ldiReg8MemReg16: x }) -> Z80Single $ x reg8 reg16)
+
+cpl :: Z80Monoid
+cpl = Z80Monoid (\(Z80MonoidImpl { cpl: x }) -> Z80Single $ x)
