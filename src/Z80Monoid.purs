@@ -29,7 +29,7 @@ data Reg16
 data Z80MonoidResult f
   = Z80Empty
   | Z80Single f
-  | Z80Append f (Unit -> Z80MonoidResult f)
+  | Z80Append (Unit -> Z80MonoidResult f) f
 
 -- http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
 -- left to right, top to bottom
@@ -91,8 +91,8 @@ instance monoidZ80Monoid :: Monoid Z80Monoid where
 z80ResultAppend :: forall f. Z80MonoidResult f -> Z80MonoidResult f -> Z80MonoidResult f
 z80ResultAppend Z80Empty x = x
 z80ResultAppend x Z80Empty = x
-z80ResultAppend (Z80Single f) x = Z80Append f (\_ -> x)
-z80ResultAppend (Z80Append f k) x = Z80Append f (\_ -> z80ResultAppend (k unit) x)
+z80ResultAppend x (Z80Single f) = Z80Append (\_ -> x) f
+z80ResultAppend x (Z80Append k f) = Z80Append (\_ -> z80ResultAppend x (k unit)) f
 
 runZ80Monoid :: forall f. (Monoid f) => Z80Monoid -> Z80MonoidImpl f -> f
 runZ80Monoid (Z80Monoid z80) impl = tailRec go (z80 impl)
@@ -100,11 +100,11 @@ runZ80Monoid (Z80Monoid z80) impl = tailRec go (z80 impl)
     go :: Z80MonoidResult f -> Either (Z80MonoidResult f) f
     go Z80Empty = Right $ mempty
     go (Z80Single f) = Right $ f
-    go (Z80Append f thunk) =
+    go (Z80Append thunk f) =
       case (thunk unit) of
         Z80Empty -> Right $ f
-        Z80Single f2 -> Right $ f <> f2
-        Z80Append f2 thunk2 -> Left $ Z80Append (f <> f2) thunk2
+        Z80Single f2 -> Right $ f2 <> f
+        Z80Append thunk2 f2 -> Left $ Z80Append thunk2 (f2 <> f)
 
 nop :: Z80Monoid
 nop = Z80Monoid (\(Z80MonoidImpl { nop: x }) -> Z80Single $ x)
