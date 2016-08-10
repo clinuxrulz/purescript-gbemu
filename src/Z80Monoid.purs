@@ -1,7 +1,9 @@
 module Z80Monoid where
 
 import Prelude
-import Data.Monoid (class Monoid)
+import Control.Monad.Rec.Class (tailRec)
+import Data.Either (Either(Left,Right))
+import Data.Monoid (class Monoid, mempty)
 
 newtype I8 = I8 Int
 newtype I16 = I16 Int
@@ -27,98 +29,115 @@ data Reg16
 data Z80MonoidResult f
   = Z80Empty
   | Z80Single f
-  | Z80Append (Unit -> Z80MonoidResult f) (Unit -> Z80MonoidResult f)
+  | Z80Append f (Unit -> Z80MonoidResult f)
 
 -- http://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
 -- left to right, top to bottom
-newtype Z80Monoid =
-  Z80Monoid
-    (forall f. (Monoid f) =>
-                                                 -- 0x
+newtype Z80MonoidImpl f =
+  Z80MonoidImpl
+                                            -- 0x
 
-         { nop :: f                              -- NOP
-         , ldReg16Imm16 :: Reg16 -> I16 -> f     -- LD BC,d16
-         , ldMemReg16Reg8 :: Reg16 -> Reg8 -> f  -- LD (BC),A
-         , incReg16 :: Reg16 -> f                -- INC BC
+    { nop :: f                              -- NOP
+    , ldReg16Imm16 :: Reg16 -> I16 -> f     -- LD BC,d16
+    , ldMemReg16Reg8 :: Reg16 -> Reg8 -> f  -- LD (BC),A
+    , incReg16 :: Reg16 -> f                -- INC BC
 
-         , incReg8 :: Reg8 -> f                  -- INC B
-         , decReg8 :: Reg8 -> f                  -- DEC B
-         , ldReg8Imm8 :: Reg8 -> I8 -> f         -- LD B,d8
-         , rlca :: f                             -- RLCA
+    , incReg8 :: Reg8 -> f                  -- INC B
+    , decReg8 :: Reg8 -> f                  -- DEC B
+    , ldReg8Imm8 :: Reg8 -> I8 -> f         -- LD B,d8
+    , rlca :: f                             -- RLCA
 
-         , ldMemReg8Reg16 :: Reg8 -> Reg16 -> f  -- LD (a16),SP
-         , add16 :: Reg16 -> Reg16 -> f          -- ADD HL,BC
-         , ldReg8MemReg16 :: Reg8 -> Reg16 -> f  -- LD A,(BC)
-         , decReg16 :: Reg16 -> f                -- DEC BC
+    , ldMemReg8Reg16 :: Reg8 -> Reg16 -> f  -- LD (a16),SP
+    , add16 :: Reg16 -> Reg16 -> f          -- ADD HL,BC
+    , ldReg8MemReg16 :: Reg8 -> Reg16 -> f  -- LD A,(BC)
+    , decReg16 :: Reg16 -> f                -- DEC BC
 
-         -- covered already                      -- INC C
-         -- covered already                      -- DEC C
-         -- covered already                      -- LD C,d8
-         , rrca :: Reg16 -> f                    -- RRCA
+    -- covered already                      -- INC C
+    -- covered already                      -- DEC C
+    -- covered already                      -- LD C,d8
+    , rrca :: Reg16 -> f                    -- RRCA
 
-                                                 -- 1x
+      -- 1x
 
-         , stop :: f                             -- STOP
-         -- covered already                      -- LD DE,d16
-         -- covered already                      -- LD (DE),A
-         -- covered already                      -- INC DE
+    , stop :: f                             -- STOP
+    -- covered already                      -- LD DE,d16
+    -- covered already                      -- LD (DE),A
+    -- covered already                      -- INC DE
 
-         -- covered already                      -- INC D
-         -- covered already                      -- DEC D
-         -- covered already                      -- LD D,d8
-         , rla :: f                              -- RLA
+    -- covered already                      -- INC D
+    -- covered already                      -- DEC D
+    -- covered already                      -- LD D,d8
+    , rla :: f                              -- RLA
 
-         , jrImm8 :: I8 -> f                     -- JR r8
-         -- covered already                      -- ADD HL,DE
-         -- covered already                      -- LD A,(DE)
-         -- covered already                      -- DEC DE
+    , jrImm8 :: I8 -> f                     -- JR r8
+    -- covered already                      -- ADD HL,DE
+    -- covered already                      -- LD A,(DE)
+    -- covered already                      -- DEC DE
 
-         -- covered already                      -- INC E
-         -- covered already                      -- DEC E
-         -- covered already                      -- LD E,d8
-         , rra :: f                              -- RRA
-         }
-      -> Z80MonoidResult f
-    )
+    -- covered already                      -- INC E
+    -- covered already                      -- DEC E
+    -- covered already                      -- LD E,d8
+    , rra :: f                              -- RRA
+    }
+
+newtype Z80Monoid = Z80Monoid (forall f. Z80MonoidImpl f -> Z80MonoidResult f)
 
 instance semigroupZ80Monoid :: Semigroup Z80Monoid where
-  append (Z80Monoid f1) (Z80Monoid f2) = Z80Monoid (\impl -> Z80Append (\_ -> f1 impl) (\_ -> f2 impl))
+  append (Z80Monoid f1) (Z80Monoid f2) = Z80Monoid (\impl -> z80ResultAppend (f1 impl) (f2 impl))
 
 instance monoidZ80Monoid :: Monoid Z80Monoid where
   mempty = Z80Monoid (\_ -> Z80Empty)
 
+z80ResultAppend :: forall f. Z80MonoidResult f -> Z80MonoidResult f -> Z80MonoidResult f
+z80ResultAppend Z80Empty x = x
+z80ResultAppend x Z80Empty = x
+z80ResultAppend (Z80Single f) x = Z80Append f (\_ -> x)
+z80ResultAppend (Z80Append f k) x = Z80Append f (\_ -> z80ResultAppend (k unit) x)
+
+runZ80Monoid :: forall f. (Monoid f) => Z80Monoid -> Z80MonoidImpl f -> f
+runZ80Monoid (Z80Monoid z80) impl = tailRec go (z80 impl)
+  where
+    go :: Z80MonoidResult f -> Either (Z80MonoidResult f) f
+    go Z80Empty = Right $ mempty
+    go (Z80Single f) = Right $ f
+    go (Z80Append f thunk) =
+      case (thunk unit) of
+        Z80Empty -> Right $ f
+        Z80Single f2 -> Right $ f <> f2
+        Z80Append f2 thunk2 -> Left $ Z80Append (f <> f2) thunk2
+
 nop :: Z80Monoid
-nop = Z80Monoid (\{ nop: x } -> Z80Single $ x)
+nop = Z80Monoid (\(Z80MonoidImpl { nop: x }) -> Z80Single $ x)
 
 ldReg16Imm16 :: Reg16 -> I16 -> Z80Monoid
-ldReg16Imm16 reg16 imm16 = Z80Monoid (\{ ldReg16Imm16: x } -> Z80Single $ x reg16 imm16)
+ldReg16Imm16 reg16 imm16 = Z80Monoid (\(Z80MonoidImpl { ldReg16Imm16: x }) -> Z80Single $ x reg16 imm16)
 
 ldMemReg16Reg8 :: Reg16 -> Reg8 -> Z80Monoid
-ldMemReg16Reg8 reg16 reg8 = Z80Monoid (\{ ldMemReg16Reg8: x } -> Z80Single $ x reg16 reg8)
+ldMemReg16Reg8 reg16 reg8 = Z80Monoid (\(Z80MonoidImpl { ldMemReg16Reg8: x }) -> Z80Single $ x reg16 reg8)
 
 incReg16 :: Reg16 -> Z80Monoid
-incReg16 reg16 = Z80Monoid (\{ incReg16: x } -> Z80Single $ x reg16)
+incReg16 reg16 = Z80Monoid (\(Z80MonoidImpl { incReg16: x }) -> Z80Single $ x reg16)
 
 incReg8 :: Reg8 -> Z80Monoid
-incReg8 reg8 = Z80Monoid (\{ incReg8: x } -> Z80Single $ x reg8)
+incReg8 reg8 = Z80Monoid (\(Z80MonoidImpl { incReg8: x }) -> Z80Single $ x reg8)
 
 decReg8 :: Reg8 -> Z80Monoid
-decReg8 reg8 = Z80Monoid (\{ decReg8: x } -> Z80Single $ x reg8)
+decReg8 reg8 = Z80Monoid (\(Z80MonoidImpl { decReg8: x }) -> Z80Single $ x reg8)
 
 ldReg8Imm8 :: Reg8 -> I8 -> Z80Monoid
-ldReg8Imm8 reg8 imm8 = Z80Monoid (\{ ldReg8Imm8: x } -> Z80Single $ x reg8 imm8)
+ldReg8Imm8 reg8 imm8 = Z80Monoid (\(Z80MonoidImpl { ldReg8Imm8: x }) -> Z80Single $ x reg8 imm8)
 
 rlca :: Z80Monoid
-rlca = Z80Monoid (\{ rlca: x } -> Z80Single $ x)
+rlca = Z80Monoid (\(Z80MonoidImpl { rlca: x }) -> Z80Single $ x)
 
 stop :: Z80Monoid
-stop = Z80Monoid (\{ stop: x } -> Z80Single $ x)
+stop = Z80Monoid (\(Z80MonoidImpl { stop: x }) -> Z80Single $ x)
 
 rla :: Z80Monoid
-rla = Z80Monoid (\{ rla: x } -> Z80Single $ x)
+rla = Z80Monoid (\(Z80MonoidImpl { rla: x }) -> Z80Single $ x)
 
 jrImm8 :: I8 -> Z80Monoid
-jrImm8 imm8 = Z80Monoid (\{ jrImm8: x } -> Z80Single $ x imm8)
+jrImm8 imm8 = Z80Monoid (\(Z80MonoidImpl { jrImm8: x }) -> Z80Single $ x imm8)
 
 rra :: Z80Monoid
-rra = Z80Monoid (\{ rra: x } -> Z80Single $ x)
+rra = Z80Monoid (\(Z80MonoidImpl { rra: x }) -> Z80Single $ x)
