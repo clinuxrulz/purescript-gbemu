@@ -110,6 +110,28 @@ newtype Z80MonoidImpl f =
     -- covered already                      -- DEC L
     -- covered already                      -- LD L,d8
     , cpl :: f                              -- CPL
+
+                                            -- 3x
+
+    -- covered already                      -- JR NC,r8
+    -- covered already                      -- LD SP,d16
+    , lddMemReg16Reg8 :: Reg16 -> Reg8 -> f -- LD (HL-),A
+    -- covered already                      -- INC SP
+
+    , incMemReg16 :: Reg16 -> f             -- INC (HL)
+    , decMemReg16 :: Reg16 -> f             -- DEC (HL)
+    , ldMemReg16Imm8 :: Reg16 -> I8 -> f    -- LD (HL),d8
+    , scf :: f                              -- SCF
+
+    -- covered already                      -- JR C,r8
+    -- covered already                      -- ADD HL,SP
+    , lddReg8MemReg16 :: Reg8 -> Reg16 -> f -- LD A,(HL-)
+    -- covered already                      -- DEC SP
+
+    -- covered already                      -- INC A
+    -- covered already                      -- DEC A
+    -- covered already                      -- LD A,d8
+    , ccf :: f                              -- CCF
     }
 
 newtype Z80Monoid = Z80Monoid (forall f. Z80MonoidImpl f -> Z80MonoidResult f)
@@ -188,3 +210,24 @@ ldiReg8MemReg16 reg8 reg16 = Z80Monoid (\(Z80MonoidImpl { ldiReg8MemReg16: x }) 
 
 cpl :: Z80Monoid
 cpl = Z80Monoid (\(Z80MonoidImpl { cpl: x }) -> Z80Single $ x)
+
+lddMemReg16Reg8 :: Reg16 -> Reg8 -> Z80Monoid
+lddMemReg16Reg8 reg16 reg8 = Z80Monoid (\(Z80MonoidImpl { lddMemReg16Reg8: x }) -> Z80Single $ x reg16 reg8)
+
+incMemReg16 :: Reg16 -> Z80Monoid
+incMemReg16 reg16 = Z80Monoid (\(Z80MonoidImpl { incMemReg16: x }) -> Z80Single $ x reg16)
+
+decMemReg16 :: Reg16 -> Z80Monoid
+decMemReg16 reg16 = Z80Monoid (\(Z80MonoidImpl { decMemReg16: x }) -> Z80Single $ x reg16)
+
+ldMemReg16Imm8 :: Reg16 -> I8 -> Z80Monoid
+ldMemReg16Imm8 reg16 imm8 = Z80Monoid (\(Z80MonoidImpl { ldMemReg16Imm8: x }) -> Z80Single $ x reg16 imm8)
+
+scf :: Z80Monoid
+scf = Z80Monoid (\(Z80MonoidImpl { scf: x }) -> Z80Single $ x)
+
+lddReg8MemReg16 :: Reg8 -> Reg16 -> Z80Monoid
+lddReg8MemReg16 reg8 reg16 = Z80Monoid (\(Z80MonoidImpl { lddReg8MemReg16: x }) -> Z80Single $ x reg8 reg16)
+
+ccf :: Z80Monoid
+ccf = Z80Monoid (\(Z80MonoidImpl { ccf: x }) -> Z80Single $ x)
