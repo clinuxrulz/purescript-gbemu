@@ -5,6 +5,7 @@ import Control.Monad.Rec.Class (tailRec)
 import Data.Either (Either(Left,Right))
 import Data.Monoid (class Monoid, mempty)
 
+newtype I3 = I3 Int
 newtype I8 = I8 Int
 newtype I16 = I16 Int
 
@@ -58,7 +59,7 @@ newtype Z80MonoidImpl f =
     , rlca :: f                             -- RLCA
 
     , ldMemReg8Reg16 :: Reg8 -> Reg16 -> f  -- LD (a16),SP
-    , add16 :: Reg16 -> Reg16 -> f          -- ADD HL,BC
+    , addReg16Reg16 :: Reg16 -> Reg16 -> f  -- ADD HL,BC
     , ldReg8MemReg16 :: Reg8 -> Reg16 -> f  -- LD A,(BC)
     , decReg16 :: Reg16 -> f                -- DEC BC
 
@@ -132,6 +133,68 @@ newtype Z80MonoidImpl f =
     -- covered already                      -- DEC A
     -- covered already                      -- LD A,d8
     , ccf :: f                              -- CCF
+
+                                            -- 4x
+
+    , ldReg8Reg8 :: Reg8 -> Reg8 -> f       -- LD B,B
+    -- many covered upto 45
+    , ldReg8MemReg16 :: Reg8 -> Reg16 -> f  -- LD B,(HL)
+    -- many covered upto 6F
+
+                                            -- 7x
+
+    , ldMemReg16Reg8 :: Reg16 -> Reg8 -> f  -- LD (HL),B
+    -- many covered upto 75
+    , halt :: f                             -- HALT
+    -- many covered upto 7F
+
+                                            -- 8x
+
+    , addReg8Reg8 :: Reg8 -> Reg8 -> f      -- ADD A,B
+    -- many covered upto 85
+    , addReg8MemReg16 :: Reg8 -> Reg16 -> f -- ADD A,(HL)
+    -- covered already                      -- ADD A,A
+
+    , adcReg8Reg8 :: Reg8 -> Reg8 -> f      -- ADC A,B
+    -- many covered upto 8D
+    , adcReg8MemReg16 :: Reg8 -> Reg16 -> f -- ADC A,(HL)
+    -- covered already                      -- ADC A,A
+
+                                            -- 9x
+
+    , subReg8 :: Reg8 -> f                  -- SUB B
+    -- many covered upto 95
+    , subMemReg16 :: Reg16 -> f             -- SUB (HL)
+    -- covered already                      -- SUB A
+
+    , sbcReg8Reg8 :: Reg8 -> Reg8 -> f      -- SBC A,B
+    -- many covered upto 9D
+    , sbcReg8MemReg16 :: Reg8 -> Reg16 -> f -- SBC A,(HL)
+    -- covered already                      -- SBC A,A
+
+                                            -- Ax
+
+    , andReg8 :: Reg8 -> f                  -- AND B
+    -- many covered upto A5
+    , andMemReg16 :: Reg16 -> f             -- AND (HL)
+    -- covered already                      -- AND A
+
+    , xorReg8 :: Reg8 -> f                  -- XOR B
+    -- many covered upto AD
+    , xorMemReg16 :: Reg16 -> f             -- XOR (HL)
+    -- covered already                      -- XOR A
+
+                                            -- Bx
+
+    , orReg8 :: Reg8 -> f                   -- OR B
+    -- many covered upto B5
+    , orMemReg16 :: Reg16 -> f              -- OR (HL)
+    -- covered already                      -- OR A
+
+    , cpReg8 :: Reg8 -> f                   -- CP B
+    -- many covered upto
+    , cpMemReg16 :: Reg16 -> f              -- CP (HL)
+    -- covered already                      -- CP A
     }
 
 newtype Z80Monoid = Z80Monoid (forall f. Z80MonoidImpl f -> Z80MonoidResult f)
