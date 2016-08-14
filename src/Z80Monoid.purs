@@ -195,6 +195,28 @@ newtype Z80MonoidImpl f =
     -- many covered upto
     , cpMemReg16 :: Reg16 -> f              -- CP (HL)
     -- covered already                      -- CP A
+
+                                            -- Cx
+
+    , retCond :: Condition -> f             -- RET NZ
+    , popReg16 :: Reg16 -> f                -- POP BC
+    , jpCondImm16 :: Condition -> I16 -> f  -- JP NZ,a16
+    , jpImm16 :: I16 -> f                   -- JP a16
+
+    , callCondImm16 :: Condition -> I16 -> f -- CALL NZ,a16
+    , pushReg16 :: Reg16 -> f               -- PUSH BC
+    , addReg8Imm8 :: Reg8 -> I8 -> f        -- ADD A,d8
+    , rstI8 :: I8 -> f                      -- RST 00H
+
+    -- covered already                      -- RET Z
+    , ret :: f                              -- RET
+    -- covered already                      -- JP Z,a16
+    -- PREFIX CB listed last
+
+    -- covered already                      -- CALL Z,a16
+    , callImm16 :: I16 -> f                 -- CALL a16
+    , adcReg8Imm8 :: Reg8 -> I8 -> f        -- ADC A,d8
+    -- covered already                      -- RST 08H
     }
 
 newtype Z80Monoid = Z80Monoid (forall f. Z80MonoidImpl f -> Z80MonoidResult f)
