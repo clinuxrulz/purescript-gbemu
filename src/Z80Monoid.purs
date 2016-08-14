@@ -217,6 +217,20 @@ newtype Z80MonoidImpl f =
     , callImm16 :: I16 -> f                 -- CALL a16
     , adcReg8Imm8 :: Reg8 -> I8 -> f        -- ADC A,d8
     -- covered already                      -- RST 08H
+
+                                            -- Dx
+
+    -- many covered upto D5
+
+    , subImm8 :: I8 -> f                    -- SUB d8
+    -- covered already                      -- RST 10H
+    -- covered already                      -- RET C
+    , reti :: f                             -- RETI
+
+    -- many covered upto DD
+
+    , sbcReg8Imm8 :: Reg8 -> I8 -> f        -- SBC A,d8
+    -- covered already
     }
 
 newtype Z80Monoid = Z80Monoid (forall f. Z80MonoidImpl f -> Z80MonoidResult f)
