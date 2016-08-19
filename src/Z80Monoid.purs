@@ -253,6 +253,26 @@ newtype Z80MonoidImpl f =
     -- blank                                --
     , xorImm8 :: I8 -> f                    -- XOR d8
     -- covered already                      -- RST 28H
+
+                                            -- Fx
+
+    , ldhReg8MemImm8 :: Reg8 -> I8 -> f     -- LDH A,(a8)
+    -- covered already                      -- POP AF
+    , ldReg8MemReg8 :: Reg8 -> Reg8 -> f    -- LD A,(C)
+    , di :: f                               -- DI
+
+    -- blank                                --
+    -- covered already                      -- PUSH AF
+    , orImm8 :: I8 -> f                     -- OR d8
+    -- covered already                      -- RST 30H
+
+    , ldReg16Reg16PlusImm8 :: Reg16 -> Reg16 -> I8 -> f -- LD HL,SP+r8
+    , ldReg16Reg16 :: Reg16 -> Reg16 -> f   -- LD SP,HL
+    , ldReg8MemImm16 :: Reg8 -> I16 -> f    -- LD A,(a16)
+    , ei :: f                               -- EI
+
+    , cp8Imm8 :: I8 -> f                    -- CP d8
+    -- covered already                      -- RST 38H
     }
 
 newtype Z80Monoid = Z80Monoid (forall f. Z80MonoidImpl f -> Z80MonoidResult f)
