@@ -321,6 +321,22 @@ newtype Z80MonoidImpl f =
 
     , sraMemReg16 :: Reg16 -> f             -- SRA (HL)
     -- covered already                      -- SRA A
+
+                                            -- CB 3x
+
+    , swapReg8 :: Reg8 -> f                 -- SWAP B
+
+    -- many covered upto CB 35
+
+    , swapMemReg16 :: Reg16 -> f            -- SWAP (HL)
+    -- covered already                      -- SWAP A
+
+    , srlReg8 :: Reg8 -> f                  -- SRL B
+
+    -- many covered upto CB 3D
+
+    , srlMemReg16 :: Reg16 -> f             -- SRL (HL)
+    -- covered already                      -- SRL A
     }
 
 newtype Z80Monoid = Z80Monoid (forall f. Z80MonoidImpl f -> Z80MonoidResult f)
