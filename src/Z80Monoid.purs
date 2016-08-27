@@ -384,29 +384,37 @@ runZ80Monoid (Z80Monoid z80) impl = tailRec go (z80 impl)
         Z80Single f2 -> Right $ f2 <> f
         Z80Append thunk2 f2 -> Left $ Z80Append thunk2 (f2 <> f)
 
+liftZ80 :: (forall f. Z80MonoidImpl f -> f) -> Z80Monoid
+liftZ80 f = Z80Monoid (\impl -> Z80Single $ f impl)
+
 nop :: Z80Monoid
-nop = Z80Monoid (\(Z80MonoidImpl { nop: x }) -> Z80Single $ x)
+nop = liftZ80 (\(Z80MonoidImpl { nop: x }) -> x)
 
 ldReg16Imm16 :: Reg16 -> I16 -> Z80Monoid
-ldReg16Imm16 reg16 imm16 = Z80Monoid (\(Z80MonoidImpl { ldReg16Imm16: x }) -> Z80Single $ x reg16 imm16)
+ldReg16Imm16 reg16 imm16 = liftZ80 (\(Z80MonoidImpl { ldReg16Imm16: x }) -> x reg16 imm16)
 
 ldMemReg16Reg8 :: Reg16 -> Reg8 -> Z80Monoid
-ldMemReg16Reg8 reg16 reg8 = Z80Monoid (\(Z80MonoidImpl { ldMemReg16Reg8: x }) -> Z80Single $ x reg16 reg8)
+ldMemReg16Reg8 reg16 reg8 = liftZ80 (\(Z80MonoidImpl { ldMemReg16Reg8: x }) -> x reg16 reg8)
 
 incReg16 :: Reg16 -> Z80Monoid
-incReg16 reg16 = Z80Monoid (\(Z80MonoidImpl { incReg16: x }) -> Z80Single $ x reg16)
+incReg16 reg16 = liftZ80 (\(Z80MonoidImpl { incReg16: x }) -> x reg16)
 
 incReg8 :: Reg8 -> Z80Monoid
-incReg8 reg8 = Z80Monoid (\(Z80MonoidImpl { incReg8: x }) -> Z80Single $ x reg8)
+incReg8 reg8 = liftZ80 (\(Z80MonoidImpl { incReg8: x }) -> x reg8)
 
 decReg8 :: Reg8 -> Z80Monoid
-decReg8 reg8 = Z80Monoid (\(Z80MonoidImpl { decReg8: x }) -> Z80Single $ x reg8)
+decReg8 reg8 = liftZ80 (\(Z80MonoidImpl { decReg8: x }) -> x reg8)
 
 ldReg8Imm8 :: Reg8 -> I8 -> Z80Monoid
-ldReg8Imm8 reg8 imm8 = Z80Monoid (\(Z80MonoidImpl { ldReg8Imm8: x }) -> Z80Single $ x reg8 imm8)
+ldReg8Imm8 reg8 imm8 = liftZ80 (\(Z80MonoidImpl { ldReg8Imm8: x }) -> x reg8 imm8)
 
 rlca :: Z80Monoid
-rlca = Z80Monoid (\(Z80MonoidImpl { rlca: x }) -> Z80Single $ x)
+rlca = liftZ80 (\(Z80MonoidImpl { rlca: x }) -> x)
+
+ldMemReg8Reg16 :: Reg8 -> Reg16 -> Z80Monoid
+ldMemReg8Reg16 reg8 reg16 = liftZ80 (\(Z80MonoidImpl { ldMemReg8Reg16: x }) -> x reg8 reg16)
+
+-- TODO: some missing here
 
 stop :: Z80Monoid
 stop = Z80Monoid (\(Z80MonoidImpl { stop: x }) -> Z80Single $ x)
