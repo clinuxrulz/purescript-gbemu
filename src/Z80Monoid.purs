@@ -337,6 +337,25 @@ newtype Z80MonoidImpl f =
 
     , srlMemReg16 :: Reg16 -> f             -- SRL (HL)
     -- covered already                      -- SRL A
+
+                                            -- CB 4x
+
+    , bitImm3Reg8 :: I3 -> Reg8 -> f        -- BIT 0,B
+    , bitImm3MemReg16 :: I3 -> Reg16 -> f   -- BIT 0,(HL)
+
+    -- many covered upto 7F
+
+                                            -- CB 8x
+
+    , resImm3Reg8 :: I3 -> Reg8 -> f        -- RES 0,B
+    , resImm3MemReg16 :: I3 -> Reg16 -> f   -- RES 0,(HL)
+
+    -- many covered upto BF
+
+                                            -- CB Cx
+
+    , setImm3Reg8 :: I3 -> Reg8 -> f        -- SET 0,B
+    , setImm3MemReg16 :: I3 -> Reg16 -> f   -- SET 0,(HL)
     }
 
 newtype Z80Monoid = Z80Monoid (forall f. Z80MonoidImpl f -> Z80MonoidResult f)
