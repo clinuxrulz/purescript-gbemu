@@ -617,3 +617,69 @@ ei = liftZ80 (\(Z80MonoidImpl { ei: x }) -> x)
 
 cp8Imm8 :: I8 -> Z80Monoid
 cp8Imm8 imm8 = liftZ80 (\(Z80MonoidImpl { cp8Imm8: x }) -> x imm8)
+
+rlcReg8 :: Reg8 -> Z80Monoid
+rlcReg8 reg8 = liftZ80 (\(Z80MonoidImpl { rlcReg8: x }) -> x reg8)
+
+rlcMemReg16 :: Reg16 -> Z80Monoid
+rlcMemReg16 reg16 = liftZ80 (\(Z80MonoidImpl { rlcMemReg16: x }) -> x reg16)
+
+rrcReg8 :: Reg8 -> Z80Monoid
+rrcReg8 reg8 = liftZ80 (\(Z80MonoidImpl { rrcReg8: x }) -> x reg8)
+
+rrcMemReg16 :: Reg16 -> Z80Monoid
+rrcMemReg16 reg16 = liftZ80 (\(Z80MonoidImpl { rrcMemReg16: x }) -> x reg16)
+
+rlReg8 :: Reg8 -> Z80Monoid
+rlReg8 reg8 = liftZ80 (\(Z80MonoidImpl { rlReg8: x }) -> x reg8)
+
+rlMemReg16 :: Reg16 -> Z80Monoid
+rlMemReg16 reg16 = liftZ80 (\(Z80MonoidImpl { rlMemReg16: x }) -> x reg16)
+
+rrReg8 :: Reg8 -> Z80Monoid
+rrReg8 reg8 = liftZ80 (\(Z80MonoidImpl { rrReg8: x }) -> x reg8)
+
+rrMemReg16 :: Reg16 -> Z80Monoid
+rrMemReg16 reg16 = liftZ80 (\(Z80MonoidImpl { rrMemReg16: x }) -> x reg16)
+
+slaReg8 :: Reg8 -> Z80Monoid
+slaReg8 reg8 = liftZ80 (\(Z80MonoidImpl { slaReg8: x }) -> x reg8)
+
+slaMemReg16 :: Reg16 -> Z80Monoid
+slaMemReg16 reg16 = liftZ80 (\(Z80MonoidImpl { slaMemReg16: x }) -> x reg16)
+
+sraReg8 :: Reg8 -> Z80Monoid
+sraReg8 reg8 = liftZ80 (\(Z80MonoidImpl { sraReg8: x }) -> x reg8)
+
+sraMemReg16 :: Reg16 -> Z80Monoid
+sraMemReg16 reg16 = liftZ80 (\(Z80MonoidImpl { sraMemReg16: x }) -> x reg16)
+
+swapReg8 :: Reg8 -> Z80Monoid
+swapReg8 reg8 = liftZ80 (\(Z80MonoidImpl { swapReg8: x }) -> x reg8)
+
+swapMemReg16 :: Reg16 -> Z80Monoid
+swapMemReg16 reg16 = liftZ80 (\(Z80MonoidImpl { swapMemReg16: x }) -> x reg16)
+
+srlReg8 :: Reg8 -> Z80Monoid
+srlReg8 reg8 = liftZ80 (\(Z80MonoidImpl { srlReg8: x }) -> x reg8)
+
+srlMemReg16 :: Reg16 -> Z80Monoid
+srlMemReg16 reg16 = liftZ80 (\(Z80MonoidImpl { srlMemReg16: x }) -> x reg16)
+
+bitImm3Reg8 :: I3 -> Reg8 -> Z80Monoid
+bitImm3Reg8 imm3 reg8 = liftZ80 (\(Z80MonoidImpl { bitImm3Reg8: x }) -> x imm3 reg8)
+
+bitImm3MemReg16 :: I3 -> Reg16 -> Z80Monoid
+bitImm3MemReg16 imm3 reg16 = liftZ80 (\(Z80MonoidImpl { bitImm3MemReg16: x }) -> x imm3 reg16)
+
+resImm3Reg8 :: I3 -> Reg8 -> Z80Monoid
+resImm3Reg8 imm3 reg8 = liftZ80 (\(Z80MonoidImpl { resImm3Reg8 }) -> resImm3Reg8 imm3 reg8)
+
+regImm3MemReg16 :: I3 -> Reg16 -> Z80Monoid
+regImm3MemReg16 imm3 reg16 = liftZ80 (\(Z80MonoidImpl { resImm3MemReg16: x }) -> x imm3 reg16 )
+
+setImm3Reg8 :: I3 -> Reg8 -> Z80Monoid
+setImm3Reg8 imm3 reg8 = liftZ80 (\(Z80MonoidImpl { setImm3Reg8: x }) -> x imm3 reg8)
+
+setImm3MemReg16 :: I3 -> Reg16 -> Z80Monoid
+setImm3MemReg16 imm3 reg16 = liftZ80 (\(Z80MonoidImpl { setImm3MemReg16: x }) -> x imm3 reg16)
