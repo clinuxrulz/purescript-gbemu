@@ -138,12 +138,12 @@ newtype Z80MonoidImpl f =
 
     , ldReg8Reg8 :: Reg8 -> Reg8 -> f       -- LD B,B
     -- many covered upto 45
-    , ldReg8MemReg16 :: Reg8 -> Reg16 -> f  -- LD B,(HL)
+    -- covered already                      -- LD B,(HL)
     -- many covered upto 6F
 
                                             -- 7x
 
-    , ldMemReg16Reg8 :: Reg16 -> Reg8 -> f  -- LD (HL),B
+    -- covered already                      -- LD (HL),B
     -- many covered upto 75
     , halt :: f                             -- HALT
     -- many covered upto 7F
@@ -473,3 +473,36 @@ lddReg8MemReg16 reg8 reg16 = Z80Monoid (\(Z80MonoidImpl { lddReg8MemReg16: x }) 
 
 ccf :: Z80Monoid
 ccf = Z80Monoid (\(Z80MonoidImpl { ccf: x }) -> Z80Single $ x)
+
+ldReg8Reg8 :: Reg8 -> Reg8 -> Z80Monoid
+ldReg8Reg8 reg8a reg8b = liftZ80 (\(Z80MonoidImpl { ldReg8Reg8: x }) -> x reg8a reg8b)
+
+halt :: Z80Monoid
+halt = liftZ80 (\(Z80MonoidImpl { halt: x }) -> x)
+
+addReg8Reg8 :: Reg8 -> Reg8 -> Z80Monoid
+addReg8Reg8 reg8a reg8b = liftZ80 (\(Z80MonoidImpl { addReg8Reg8: x }) -> x reg8a reg8b)
+
+addReg8MemReg16 :: Reg8 -> Reg16 -> Z80Monoid
+addReg8MemReg16 reg8 reg16 = liftZ80 (\(Z80MonoidImpl { addReg8MemReg16: x }) -> x reg8 reg16)
+
+adcReg8Reg8 :: Reg8 -> Reg8 -> Z80Monoid
+adcReg8Reg8 reg8a reg8b = liftZ80 (\(Z80MonoidImpl { adcReg8Reg8: x }) -> x reg8a reg8b)
+
+adcReg8MemReg16 :: Reg8 -> Reg16 -> Z80Monoid
+adcReg8MemReg16 reg8 reg16 = liftZ80 (\(Z80MonoidImpl { adcReg8MemReg16: x }) -> x reg8 reg16)
+
+subReg8 :: Reg8 -> Z80Monoid
+subReg8 reg8 = liftZ80 (\(Z80MonoidImpl { subReg8: x }) -> x reg8)
+
+subMemReg16 :: Reg16 -> Z80Monoid
+subMemReg16 reg16 = liftZ80 (\(Z80MonoidImpl { subMemReg16: x }) -> x reg16)
+
+sbcReg8Reg8 :: Reg8 -> Reg8 -> Z80Monoid
+sbcReg8Reg8 reg8a reg8b = liftZ80 (\(Z80MonoidImpl { sbcReg8Reg8: x }) -> x reg8a reg8b)
+
+sbcReg8MemReg16 :: Reg8 -> Reg16 -> Z80Monoid
+sbcReg8MemReg16 reg8 reg16 = liftZ80 (\(Z80MonoidImpl { sbcReg8MemReg16: x }) -> x reg8 reg16)
+
+andReg8 :: Reg8 -> Z80Monoid
+andReg8 reg8 = liftZ80 (\(Z80MonoidImpl { andReg8: x }) -> x reg8)
