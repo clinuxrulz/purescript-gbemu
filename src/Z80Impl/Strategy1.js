@@ -29,6 +29,7 @@ exports.ldMemReg16Reg8 = function(reg16Index) {
     return function(z80State) {
       return function() {
         z80State.mem[(z80State.rs[reg16Index] << 8) | z80State.rs[reg16Index + 1]] = z80State.rs[reg8Index];
+        return unit;
       };
     };
   };
@@ -41,6 +42,7 @@ exports.incReg16 = function(reg16Index) {
       x++;
       if (x & 0x100) { z80State.rs[reg16Index]++; }
       z80State.rs[reg16Index + 1] = x & 0xFF;
+      return unit;
     };
   };
 };
@@ -55,6 +57,7 @@ exports.incReg8 = function(reg8Index) {
       z80State.rs[FLAGS_INDEX] = (x2 == 0 ? 0x80 : 0)
                                | (x & 0x100 ? 0x20 : 0)
                                | (z80State.rs[FLAGS_INDEX] & 0x10);
+      return unit;
     };
   };
 };
@@ -70,6 +73,18 @@ exports.decReg8 = function(reg8Index) {
                                | 0x40
                                | (x & 0x100 ? 0x20 : 0)
                                | (z80State.rs[FLAGS_INDEX] & 0x10);
+      return unit;
+    };
+  };
+};
+
+exports.ldReg8Imm8 = function(reg8Index) {
+  return function (imm8) {
+    return function(z80State) {
+      return function() {
+        z80State.rs[reg8Index] = imm8;
+        return unit;
+      };
     };
   };
 };
