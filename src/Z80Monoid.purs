@@ -58,7 +58,7 @@ newtype Z80MonoidImpl f =
     , ldReg8Imm8 :: Reg8 -> I8 -> f         -- LD B,d8
     , rlca :: f                             -- RLCA
 
-    , ldMemReg8Reg16 :: Reg8 -> Reg16 -> f  -- LD (a16),SP
+    , ldMemImm16Reg16 :: I16 -> Reg16 -> f  -- LD (a16),SP
     , addReg16Reg16 :: Reg16 -> Reg16 -> f  -- ADD HL,BC
     , ldReg8MemReg16 :: Reg8 -> Reg16 -> f  -- LD A,(BC)
     , decReg16 :: Reg16 -> f                -- DEC BC
@@ -411,8 +411,8 @@ ldReg8Imm8 reg8 imm8 = liftZ80 (\(Z80MonoidImpl { ldReg8Imm8: x }) -> x reg8 imm
 rlca :: Z80Monoid
 rlca = liftZ80 (\(Z80MonoidImpl { rlca: x }) -> x)
 
-ldMemReg8Reg16 :: Reg8 -> Reg16 -> Z80Monoid
-ldMemReg8Reg16 reg8 reg16 = liftZ80 (\(Z80MonoidImpl { ldMemReg8Reg16: x }) -> x reg8 reg16)
+ldMemImm16Reg16 :: I16 -> Reg16 -> Z80Monoid
+ldMemImm16Reg16 imm16 reg16 = liftZ80 (\(Z80MonoidImpl { ldMemImm16Reg16: x }) -> x imm16 reg16)
 
 addReg16Reg16 :: Reg16 -> Reg16 -> Z80Monoid
 addReg16Reg16 reg16a reg16b = liftZ80 (\(Z80MonoidImpl { addReg16Reg16: x }) -> x reg16a reg16b)

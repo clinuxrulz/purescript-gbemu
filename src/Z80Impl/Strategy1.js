@@ -79,11 +79,24 @@ exports.decReg8 = function(reg8Index) {
 };
 
 exports.ldReg8Imm8 = function(reg8Index) {
-  return function (imm8) {
+  return function(imm8) {
     return function(z80State) {
       return function() {
         z80State.rs[reg8Index] = imm8;
         return unit;
+      };
+    };
+  };
+};
+
+// RLCA ?
+
+exports.ldMemImm16Reg16 = function(imm16) {
+  return function(reg16Index) {
+    return function(z80State) {
+      return function() {
+        z80State.mem[imm16] = z80State.rs[reg16Index];
+        z80State.mem[imm16+1] = z80State.rs[reg16Index+1];
       };
     };
   };
